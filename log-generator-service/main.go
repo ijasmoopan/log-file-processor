@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const expectedFileSize = 100 * 1024 * 1024 // 100MB
+const expectedFileSize = 90 * 1024 * 1024 // 90MB
 
 func getLogMessage() string {
 	var logLevels = []string{"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}
@@ -81,18 +81,18 @@ func writeLogToFile(wg *sync.WaitGroup, logFilePath string, expectedFileSize int
 		}
 	}
 
-	fmt.Printf("Log file '%s' generated successfully with size ~ 100 MB\n", logFilePath)
+	fmt.Printf("Log file '%s' generated successfully with size ~ 90 MB\n", logFilePath)
 }
 
 func main() {
 	var wg sync.WaitGroup
 
 	logFilePaths := []string{
-		"../log-processor/logs/app1.log",
-		"../log-processor/logs/app2.log",
-		"../log-processor/logs/app3.log",
-		"../log-processor/logs/app4.log",
-		"../log-processor/logs/app5.log",
+		"../uploads/app1.log",
+		"../uploads/app2.log",
+		"../uploads/app3.log",
+		"../uploads/app4.log",
+		"../uploads/app5.log",
 	}
 
 	for _, logFilePath := range logFilePaths {
