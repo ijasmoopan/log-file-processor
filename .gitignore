@@ -23,3 +23,43 @@ go.work.sum
 
 # env file
 .env
+
+# dependencies
+frontend-service/node_modules
+frontend-service/.pnp
+frontend-service/.pnp.*
+frontend-service/.yarn/*
+frontend-service/!.yarn/patches
+frontend-service/!.yarn/plugins
+frontend-service/!.yarn/releases
+frontend-service/!.yarn/versions
+
+# testing
+frontend-service/coverage
+
+# next.js
+frontend-service/.next/
+frontend-service/out/
+
+# production
+frontend-service/build
+
+# misc
+frontend-service.DS_Store
+frontend-service*.pem
+
+# debug
+frontend-service/npm-debug.log*
+frontend-service/yarn-debug.log*
+frontend-service/yarn-error.log*
+
+# local env files
+frontend-service/.env*.local
+frontend-service/.env
+
+# vercel
+frontend-service/.vercel
+
+# typescript
+frontend-service/*.tsbuildinfo
+frontend-service/next-env.d.ts

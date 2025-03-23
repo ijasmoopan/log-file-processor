@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: intucloud-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --bind 0.0.0.0
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - intucloud-network
+    environment:
+      - REDIS_HOST=0.0.0.0
+      - REDIS_PORT=6379
+
+volumes:
+  redis_data:
+
+networks:
+  intucloud-network:
+    driver: bridge 
