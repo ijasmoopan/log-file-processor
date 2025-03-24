@@ -58,17 +58,17 @@ func (s *Server) Start() error {
 	// Start a goroutine to handle shutdown signals
 	go func() {
 		<-sigChan
-		fmt.Println("\nReceived shutdown signal. Cleaning up...")
+		log.Println("\nReceived shutdown signal. Cleaning up...")
 		s.cancel()
 	}()
 
-	fmt.Println("Log processor started. Waiting for messages...")
+	log.Println("Log processor started. Waiting for messages...")
 
 	// Process messages from Redis
 	for {
 		select {
 		case <-s.ctx.Done():
-			fmt.Println("Shutting down...")
+			log.Println("Shutting down...")
 			return nil
 		default:
 			msg, err := pubsub.ReceiveMessage(s.ctx)
@@ -90,7 +90,7 @@ func (s *Server) handleMessage(msg *redis.Message) error {
 		return fmt.Errorf("error unmarshaling message: %v", err)
 	}
 
-	fmt.Printf("Received processing request for files: %v\n", processingMsg.FileNames)
+	log.Printf("Received processing request for files: %v ~ %s", processingMsg.FileNames, processingMsg.ClientID)
 
 	// Create progress callback function
 	progressCb := func(fileName string, progress int, status string, err error) {
@@ -109,6 +109,8 @@ func (s *Server) handleMessage(msg *redis.Message) error {
 		if err := s.redis.Publish(s.config.ProgressChannel, progressMsg); err != nil {
 			log.Printf("Error publishing progress message: %v", err)
 		}
+		log.Printf("Progress update for client %s: File: %s, Progress: %d%%, Status: %s",
+			processingMsg.ClientID, fileName, progress, status)
 	}
 
 	// Process the files with progress updates
