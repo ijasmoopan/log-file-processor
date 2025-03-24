@@ -61,8 +61,8 @@ func ProcessLogFile(filePath string, progressCb ProgressCallback) (models.Result
 		// Calculate progress percentage
 		progress := int((float64(bytesRead) / float64(fileSize)) * 100)
 
-		// Only report progress if it has changed by at least 1%
-		if progress > lastProgress {
+		// Only report progress if it has changed by at least 10%
+		if progress >= lastProgress+10 && progress != 100 {
 			lastProgress = progress
 			progressCb(filepath.Base(filePath), progress, "processing", nil)
 		}

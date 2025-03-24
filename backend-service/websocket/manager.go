@@ -181,7 +181,6 @@ func (m *Manager) readPump(client *Client) {
 }
 
 func (m *Manager) subscribeToRedis(cfg *config.Config, clientID string) {
-	log.Printf("Subscribing to Redis channel: %s", cfg.ProgressChannel)
 	ctx := context.Background()
 	pubsub := m.redis.Subscribe(ctx, cfg.ProgressChannel)
 	defer pubsub.Close()
@@ -193,22 +192,17 @@ func (m *Manager) subscribeToRedis(cfg *config.Config, clientID string) {
 			return
 		}
 
-		log.Printf("Received message from Redis: %s", msg.Payload)
-
 		var progressMsg ProgressMessage
 		if err := json.Unmarshal([]byte(msg.Payload), &progressMsg); err != nil {
 			log.Printf("Error unmarshaling progress message: %v", err)
 			continue
 		}
 
-		log.Printf("*** Progress update for client %s: File: %s, Progress: %d%%, Status: %s",
-			clientID, progressMsg.FileName, progressMsg.Progress, progressMsg.Status)
-
 		// Only broadcast to the specific client
 		if progressMsg.ClientID == clientID {
 			// Log the progress update
-			log.Printf("Progress update for client %s: File: %s, Progress: %d%%, Status: %s",
-				clientID, progressMsg.FileName, progressMsg.Progress, progressMsg.Status)
+			// log.Printf("Progress update for client %s: File: %s, Progress: %d%%, Status: %s",
+			// 	clientID, progressMsg.FileName, progressMsg.Progress, progressMsg.Status)
 
 			if progressMsg.Error != "" {
 				log.Printf("Error in progress update: %s", progressMsg.Error)

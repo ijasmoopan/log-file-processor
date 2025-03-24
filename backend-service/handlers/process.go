@@ -16,6 +16,7 @@ import (
 
 type ProcessRequest struct {
 	FileNames []string `json:"file_names" binding:"required"`
+	ClientID  string   `json:"client_id" binding:"required"`
 }
 
 type ProcessResult struct {
@@ -70,16 +71,13 @@ func ProcessFiles(cfg *config.Config) gin.HandlerFunc {
 		}
 		defer redisClient.Close()
 
-		// Generate a unique client ID for this request
-		clientID := time.Now().Format("20060102150405")
-
 		// Create a message with the valid file names and client ID
 		message := struct {
 			Files    []string `json:"file_names"`
 			ClientID string   `json:"client_id"`
 		}{
 			Files:    validFiles,
-			ClientID: clientID,
+			ClientID: req.ClientID,
 		}
 
 		// Publish the message to Redis
@@ -94,7 +92,7 @@ func ProcessFiles(cfg *config.Config) gin.HandlerFunc {
 		// Return immediate response
 		c.JSON(http.StatusAccepted, gin.H{
 			"message":   "Processing request accepted",
-			"client_id": clientID,
+			"client_id": req.ClientID,
 		})
 	}
 }
