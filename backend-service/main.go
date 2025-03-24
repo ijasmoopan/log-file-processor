@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -13,6 +14,9 @@ import (
 )
 
 func main() {
+	// Load environment variables
+	config.LoadEnv()
+
 	// Initialize configuration
 	cfg := config.NewConfig()
 
@@ -28,15 +32,22 @@ func main() {
 	// Set up Gin router
 	router := gin.Default()
 
-	// Configure CORS
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * 60 * 60, // 12 hours
-	}))
+	// Configure CORS based on environment
+	corsConfig := cors.DefaultConfig()
+	if os.Getenv("APP_ENV") == "prod" {
+		// Production CORS settings
+		corsConfig.AllowOrigins = []string{"https://frontend-service:3000"}
+	} else {
+		// Development CORS settings
+		corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+	}
+	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}
+	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	corsConfig.ExposeHeaders = []string{"Content-Length"}
+	corsConfig.AllowCredentials = true
+	corsConfig.MaxAge = 12 * 60 * 60 // 12 hours
+
+	router.Use(cors.New(corsConfig))
 
 	// Add middleware
 	router.Use(gin.Recovery())
