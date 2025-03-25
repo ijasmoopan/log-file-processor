@@ -1,11 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import FetchDataSteps from "@/components/tutorial/fetch-data-steps";
 import { createClient } from "@/utils/supabase/client";
 // import { createClient } from "@/utils/supabase/server";
 import { InfoIcon } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 // export default async function ProtectedPage() {
 //   const supabase = await createClient();
@@ -41,7 +43,13 @@ import { useEffect, useState } from "react";
 //   );
 // }
 
-export default function ProtectedPage() {
+function ProtectedPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  if (token) {
+    localStorage.setItem("token", token);
+  }
+
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -80,5 +88,13 @@ export default function ProtectedPage() {
         <FetchDataSteps />
       </div>
     </div>
+  );
+}
+
+export default function ProtectedPageSuspense() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ProtectedPage />
+    </Suspense>
   );
 }

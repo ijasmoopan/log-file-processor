@@ -42,7 +42,7 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	if os.Getenv("APP_ENV") == "prod" {
 		// Production CORS settings
-		corsConfig.AllowOrigins = []string{"http://15.206.174.223:3000"}
+		corsConfig.AllowOrigins = []string{"http://15.206.174.223:3000", "http://localhost:3000"}
 	} else {
 		// Development CORS settings
 		corsConfig.AllowOrigins = []string{"http://localhost:3000"}
@@ -73,13 +73,13 @@ func main() {
 	// Routes
 	api := router.Group("/api/v1")
 	{
-		api.POST("/upload", middleware.ValidateFiles(), handlers.UploadFile(cfg))
-		api.GET("/files", handlers.ListFiles(cfg))
-		api.POST("/process", handlers.ProcessFiles(cfg))
+		api.POST("/upload", middleware.AuthMiddleware(), middleware.ValidateFiles(), handlers.UploadFile(cfg))
+		api.GET("/files", middleware.AuthMiddleware(), handlers.ListFiles(cfg))
+		api.POST("/process", middleware.AuthMiddleware(), handlers.ProcessFiles(cfg))
 		api.GET("/ws", wsManager.HandleWebSocket)
-		api.GET("/results", handlers.GetResults(db))
-		api.GET("/results/:id", handlers.GetResultByID(db))
-		api.GET("/results/filename/:filename", handlers.GetResultByFilename(db))
+		api.GET("/results", middleware.AuthMiddleware(), handlers.GetResults(db))
+		api.GET("/results/:id", middleware.AuthMiddleware(), handlers.GetResultByID(db))
+		api.GET("/results/filename/:filename", middleware.AuthMiddleware(), handlers.GetResultByFilename(db))
 	}
 
 	// Start server

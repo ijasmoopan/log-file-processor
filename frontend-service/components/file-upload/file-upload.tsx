@@ -67,6 +67,9 @@ export default function FileUpload() {
       const response = await fetch(`${env.backendUrl}/api/v1/upload`, {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
 
       const data = await response.json();
