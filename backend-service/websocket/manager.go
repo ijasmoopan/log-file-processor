@@ -16,6 +16,7 @@ import (
 	"github.com/ijasmoopan/intucloud-task/backend-service/models"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Client struct {
@@ -258,7 +259,10 @@ func (m *Manager) subscribeToRedis(cfg *config.Config, clientID string) {
 					clientID, resultMsg.FilePath, resultMsg.ErrorCount, resultMsg.WarnCount)
 			}
 
-			if err := m.db.Create(&fileResult).Error; err != nil {
+			if err := m.db.Clauses(clause.OnConflict{
+				Columns:   []clause.Column{{Name: "file_name"}},
+				UpdateAll: true,
+			}).Create(&fileResult).Error; err != nil {
 				log.Printf("Error storing failed result in database: %v", err)
 			}
 		}

@@ -7,7 +7,7 @@ import (
 // FileResult represents a file processing result in the database
 type FileResult struct {
 	gorm.Model
-	FileName   string `gorm:"not null"`
+	FileName   string `gorm:"not null;uniqueIndex"`
 	ClientID   string `gorm:"not null"`
 	Status     string `gorm:"not null"`
 	WarnCount  *int   `gorm:"default:null"`
