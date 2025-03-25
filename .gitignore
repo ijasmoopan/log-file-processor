@@ -64,3 +64,5 @@ frontend-service/.vercel
 # typescript
 frontend-service/*.tsbuildinfo
 frontend-service/next-env.d.ts
+
+uploads/app6.log

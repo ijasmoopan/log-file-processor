@@ -122,6 +122,15 @@ func (s *Server) handleMessage(msg *redis.Message) error {
 	// Calculate totals
 	totalResult := models.Result{FilePath: "Total"}
 	for _, result := range results {
+		resultMsg := models.Result{
+			ClientID:   processingMsg.ClientID,
+			FilePath:   result.FilePath,
+			ErrorCount: result.ErrorCount,
+			WarnCount:  result.WarnCount,
+		}
+		if err := s.redis.Publish(s.config.ResultChannel, resultMsg); err != nil {
+			log.Printf("Error publishing result message: %v", err)
+		}
 		totalResult.Add(result)
 	}
 

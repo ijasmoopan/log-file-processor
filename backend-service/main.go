@@ -20,13 +20,19 @@ func main() {
 	// Initialize configuration
 	cfg := config.NewConfig()
 
+	// Initialize database connection
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+
 	// Initialize Redis client
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: cfg.RedisAddress,
 	})
 
 	// Initialize WebSocket manager
-	wsManager := websocket.NewManager(redisClient)
+	wsManager := websocket.NewManager(redisClient, db)
 	go wsManager.Run()
 
 	// Set up Gin router

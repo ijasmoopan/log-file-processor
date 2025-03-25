@@ -13,6 +13,7 @@ type Config struct {
 	RedisAddress      string
 	ProcessingChannel string
 	ProgressChannel   string
+	ResultChannel     string
 }
 
 func NewConfig() *Config {
@@ -25,6 +26,7 @@ func NewConfig() *Config {
 		RedisAddress:      getEnvOrDefault("REDIS_ADDRESS", "localhost:6379"),
 		ProcessingChannel: getEnvOrDefault("PROCESSING_CHANNEL", "processing_channel"),
 		ProgressChannel:   getEnvOrDefault("PROGRESS_CHANNEL", "progress_channel"),
+		ResultChannel:     getEnvOrDefault("RESULT_CHANNEL", "result_channel"),
 	}
 }
 
