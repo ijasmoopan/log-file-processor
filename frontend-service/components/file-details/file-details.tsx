@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { env } from "@/utils/env";
 
 interface FileResult {
   ID: number;
@@ -67,7 +68,7 @@ export default function FileDetails({
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/results/filename/${encodeURIComponent(file.file_name)}`);
+        const response = await fetch(`${env.backendUrl}/api/v1/results/filename/${encodeURIComponent(file.file_name)}`);
         
         if (!response.ok) {
           if (response.status === 404) {

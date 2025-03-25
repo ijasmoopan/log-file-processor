@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { User } from "@supabase/supabase-js";
 import FileDetails from "../file-details/file-details";
+import { env } from "@/utils/env";
 
 interface File {
   file_name: string;
@@ -92,7 +93,7 @@ export default function FileList({
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:8080/api/v1/files?page=${page}&page_size=${PAGE_SIZE}`
+        `${env.backendUrl}/api/v1/files?page=${page}&page_size=${PAGE_SIZE}`
       );
 
       if (!response.ok) {
@@ -166,7 +167,7 @@ export default function FileList({
     try {
       setProcessing(true);
 
-      const response = await fetch("http://localhost:8080/api/v1/process", {
+      const response = await fetch(`${env.backendUrl}/api/v1/process`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
