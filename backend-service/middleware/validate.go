@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -16,8 +15,6 @@ import (
 func ValidateFiles() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cfg := config.NewConfig()
-
-		fmt.Println("Validating files")
 
 		// Get the files from the request
 		form, err := c.MultipartForm()
@@ -66,8 +63,6 @@ func ValidateFiles() gin.HandlerFunc {
 
 			validFiles = append(validFiles, file)
 		}
-
-		fmt.Println("Valid files", validFiles)
 
 		// Store valid files in context for later use
 		c.Set("files", validFiles)
