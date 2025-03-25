@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const expectedFileSize = 5000 * 1024 * 1024 // 5GB
+const expectedFileSize = 60 * 1024 * 1024 // 60MB
 
 func getLogMessage() string {
 	var logLevels = []string{"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}
@@ -81,7 +81,7 @@ func writeLogToFile(wg *sync.WaitGroup, logFilePath string, expectedFileSize int
 		}
 	}
 
-	fmt.Printf("Log file '%s' generated successfully with size ~ 5 GB\n", logFilePath)
+	fmt.Printf("Log file '%s' generated successfully\n", logFilePath)
 }
 
 func main() {
