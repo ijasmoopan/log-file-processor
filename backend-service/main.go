@@ -42,7 +42,7 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	if os.Getenv("APP_ENV") == "prod" {
 		// Production CORS settings
-		corsConfig.AllowOrigins = []string{"https://frontend-service:3000"}
+		corsConfig.AllowOrigins = []string{"http://localhost:3000"}
 	} else {
 		// Development CORS settings
 		corsConfig.AllowOrigins = []string{"http://localhost:3000"}
@@ -63,6 +63,12 @@ func main() {
 	if err := config.EnsureUploadDir(cfg.UploadDir); err != nil {
 		log.Fatalf("Failed to create upload directory: %v", err)
 	}
+
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "OK",
+		})
+	})
 
 	// Routes
 	api := router.Group("/api/v1")
