@@ -21,6 +21,8 @@ services:
       - redis
     networks:
       - app-network
+    volumes:
+      - uploads:/app/uploads
 
   frontend:
     container_name: frontend
@@ -41,6 +43,21 @@ services:
       - redis
     networks:
       - app-network
+
+  log-processor:
+    container_name: log-processor
+    build:
+      context: ./log-processor-service
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - app-network
+    volumes:
+      - uploads:/app/uploads
 
   db:
     image: postgres:alpine
@@ -74,5 +91,6 @@ networks:
     driver: bridge
 
 volumes:
+  uploads:
   postgres_data:
   redis_data: 
