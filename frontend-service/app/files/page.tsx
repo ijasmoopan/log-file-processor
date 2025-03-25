@@ -1,6 +1,7 @@
 "use client";
 
 import FileList from "@/components/file-list/file-list";
+import { env } from "@/utils/env";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
@@ -51,7 +52,7 @@ export default function FilesPage() {
     if (ws?.readyState === WebSocket.OPEN) return; // Already connected
 
     const socket = new WebSocket(
-      `ws://localhost:8080/api/v1/ws?client_id=${user.id}`
+      `${env.backendUrl}/api/v1/ws?client_id=${user.id}`
     );
 
     socket.onopen = () => {
