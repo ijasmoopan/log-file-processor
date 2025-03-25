@@ -71,6 +71,9 @@ func main() {
 		api.GET("/files", handlers.ListFiles(cfg))
 		api.POST("/process", handlers.ProcessFiles(cfg))
 		api.GET("/ws", wsManager.HandleWebSocket)
+		api.GET("/results", handlers.GetResults(db))
+		api.GET("/results/:id", handlers.GetResultByID(db))
+		api.GET("/results/filename/:filename", handlers.GetResultByFilename(db))
 	}
 
 	// Start server

@@ -9,6 +9,7 @@ import { FileText, Calendar, Clock } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { User } from "@supabase/supabase-js";
+import FileDetails from "../file-details/file-details";
 
 interface File {
   file_name: string;
@@ -84,6 +85,7 @@ export default function FileList({
   const [hasPrevious, setHasPrevious] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [processing, setProcessing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { toast } = useToast();
 
   const fetchFiles = async (page: number) => {
@@ -207,6 +209,10 @@ export default function FileList({
     return fileProgress[fileName];
   };
 
+  const handleFileClick = (file: File) => {
+    setSelectedFile(file);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -261,12 +267,14 @@ export default function FileList({
                   return (
                     <div
                       key={file.path}
-                      className="flex items-start gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex items-start gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => handleFileClick(file)}
                     >
                       <Checkbox
                         id={file.path}
                         checked={selectedFiles.has(file.file_name)}
                         onCheckedChange={() => handleSelectFile(file.file_name)}
+                        onClick={(e) => e.stopPropagation()}
                         className="mt-1 border-gray-300 data-[state=checked]:bg-gray-300 data-[state=checked]:border-gray-300"
                       />
                       <div className="p-2 bg-gray-100 rounded-lg">
@@ -342,6 +350,15 @@ export default function FileList({
           )}
         </CardContent>
       </Card>
+
+      {selectedFile && (
+        <FileDetails
+          file={selectedFile}
+          progress={getFileProgress(selectedFile.file_name)}
+          isOpen={!!selectedFile}
+          onClose={() => setSelectedFile(null)}
+        />
+      )}
     </div>
   );
 }
