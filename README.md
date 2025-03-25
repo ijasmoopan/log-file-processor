@@ -40,6 +40,7 @@ This project consists of multiple microservices working together to handle log f
 The backend service provides:
 - REST API endpoints for file management
 - WebSocket server for real-time updates
+- Authentication using JWT Token via Supabase
 - File upload handling
 - Integration with Redis and PostgreSQL
 - Communication between services via Redis Pub/Sub
