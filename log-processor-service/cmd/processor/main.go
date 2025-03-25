@@ -8,6 +8,9 @@ import (
 )
 
 func main() {
+	// Load environment variables
+	config.LoadEnv()
+
 	// Initialize configuration
 	cfg := config.NewConfig()
 
