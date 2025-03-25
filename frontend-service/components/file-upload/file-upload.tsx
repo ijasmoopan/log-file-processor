@@ -5,6 +5,7 @@ import { Card, CardContent } from "../ui/card";
 import { CircleX, UploadCloud } from "lucide-react";
 import { Button } from "../ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { env } from "@/utils/env";
 
 interface FileWithPreview {
   file: File;
@@ -63,7 +64,7 @@ export default function FileUpload() {
         formData.append("files", file);
       });
 
-      const response = await fetch("http://localhost:8080/api/v1/upload", {
+      const response = await fetch(`${env.backendUrl}/api/v1/upload`, {
         method: "POST",
         body: formData,
       });
