@@ -42,7 +42,7 @@ func main() {
 	corsConfig := cors.DefaultConfig()
 	if os.Getenv("APP_ENV") == "prod" {
 		// Production CORS settings
-		corsConfig.AllowOrigins = []string{"http://localhost:3000"}
+		corsConfig.AllowOrigins = []string{"http://15.206.174.223:3000"}
 	} else {
 		// Development CORS settings
 		corsConfig.AllowOrigins = []string{"http://localhost:3000"}
