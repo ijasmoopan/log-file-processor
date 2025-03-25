@@ -93,7 +93,12 @@ export default function FileList({
     try {
       setLoading(true);
       const response = await fetch(
-        `${env.backendUrl}/api/v1/files?page=${page}&page_size=${PAGE_SIZE}`
+        `${env.backendUrl}/api/v1/files?page=${page}&page_size=${PAGE_SIZE}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
 
       if (!response.ok) {
@@ -171,6 +176,7 @@ export default function FileList({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           file_names: Array.from(selectedFiles),

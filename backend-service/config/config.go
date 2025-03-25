@@ -14,6 +14,7 @@ type Config struct {
 	ProcessingChannel string
 	ProgressChannel   string
 	ResultChannel     string
+	SupabaseJwtSecret string
 }
 
 func NewConfig() *Config {
@@ -27,6 +28,7 @@ func NewConfig() *Config {
 		ProcessingChannel: getEnvOrDefault("PROCESSING_CHANNEL", "processing_channel"),
 		ProgressChannel:   getEnvOrDefault("PROGRESS_CHANNEL", "progress_channel"),
 		ResultChannel:     getEnvOrDefault("RESULT_CHANNEL", "result_channel"),
+		SupabaseJwtSecret: getEnvOrDefault("SUPABASE_JWT_SECRET", ""),
 	}
 }
 

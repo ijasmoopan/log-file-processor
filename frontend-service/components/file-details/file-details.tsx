@@ -68,7 +68,11 @@ export default function FileDetails({
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${env.backendUrl}/api/v1/results/filename/${encodeURIComponent(file.file_name)}`);
+        const response = await fetch(`${env.backendUrl}/api/v1/results/filename/${encodeURIComponent(file.file_name)}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         
         if (!response.ok) {
           if (response.status === 404) {
