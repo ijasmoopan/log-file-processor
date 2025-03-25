@@ -25,6 +25,7 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/.env.prod .
 
 ENV APP_ENV=prod
+ENV GIN_MODE=release
 
 # Expose port
 EXPOSE 8080

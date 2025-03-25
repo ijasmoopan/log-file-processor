@@ -10,7 +10,7 @@ export default function ConnectSupabaseSteps() {
             href="https://app.supabase.com/project/_/settings/api"
             target="_blank"
             className="font-bold hover:underline text-foreground/80"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             database.new
           </a>{" "}
@@ -33,7 +33,7 @@ export default function ConnectSupabaseSteps() {
             href="https://app.supabase.com/project/_/settings/api"
             target="_blank"
             className="font-bold hover:underline text-foreground/80"
-            rel="noreferrer"
+            rel="noopener noreferrer"
           >
             your Supabase project's API Settings
           </a>
