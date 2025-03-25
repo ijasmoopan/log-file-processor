@@ -3,15 +3,19 @@ package websocket
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
 	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/ijasmoopan/intucloud-task/backend-service/config"
+	"github.com/ijasmoopan/intucloud-task/backend-service/models"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 type Client struct {
@@ -28,6 +32,7 @@ type Manager struct {
 	unregister chan *Client
 	redis      *redis.Client
 	mu         sync.RWMutex
+	db         *gorm.DB
 }
 
 // ProgressMessage represents the progress update from the log processor
@@ -40,13 +45,21 @@ type ProgressMessage struct {
 	ProcessedAt time.Time `json:"processed_at"`
 }
 
-func NewManager(redisClient *redis.Client) *Manager {
+type ResultMessage struct {
+	ClientID   string `json:"client_id,omitempty"`
+	FilePath   string `json:"file_path"`
+	ErrorCount int    `json:"error_count"`
+	WarnCount  int    `json:"warn_count"`
+}
+
+func NewManager(redisClient *redis.Client, db *gorm.DB) *Manager {
 	return &Manager{
 		clients:    make(map[string]*Client),
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		redis:      redisClient,
+		db:         db,
 	}
 }
 
@@ -182,7 +195,7 @@ func (m *Manager) readPump(client *Client) {
 
 func (m *Manager) subscribeToRedis(cfg *config.Config, clientID string) {
 	ctx := context.Background()
-	pubsub := m.redis.Subscribe(ctx, cfg.ProgressChannel)
+	pubsub := m.redis.Subscribe(ctx, cfg.ProgressChannel, cfg.ResultChannel)
 	defer pubsub.Close()
 
 	for {
@@ -192,24 +205,62 @@ func (m *Manager) subscribeToRedis(cfg *config.Config, clientID string) {
 			return
 		}
 
-		var progressMsg ProgressMessage
-		if err := json.Unmarshal([]byte(msg.Payload), &progressMsg); err != nil {
-			log.Printf("Error unmarshaling progress message: %v", err)
-			continue
-		}
-
-		// Only broadcast to the specific client
-		if progressMsg.ClientID == clientID {
-			// Log the progress update
-			// log.Printf("Progress update for client %s: File: %s, Progress: %d%%, Status: %s",
-			// 	clientID, progressMsg.FileName, progressMsg.Progress, progressMsg.Status)
-
-			if progressMsg.Error != "" {
-				log.Printf("Error in progress update: %s", progressMsg.Error)
+		if msg.Channel == cfg.ProgressChannel {
+			var progressMsg ProgressMessage
+			if err := json.Unmarshal([]byte(msg.Payload), &progressMsg); err != nil {
+				log.Printf("Error unmarshaling progress message: %v", err)
+				continue
 			}
 
-			// Forward the message to the client
-			m.broadcast <- []byte(msg.Payload)
+			// Only broadcast to the specific client
+			if progressMsg.ClientID == clientID {
+				// Log the progress update
+				log.Printf("Progress update for client %s: File: %s, Progress: %d%%, Status: %s",
+					clientID, progressMsg.FileName, progressMsg.Progress, progressMsg.Status)
+
+				if progressMsg.Error != "" {
+					log.Printf("Error in progress update: %s", progressMsg.Error)
+				}
+
+				// Forward the message to the client
+				m.broadcast <- []byte(msg.Payload)
+			}
+
+		} else if msg.Channel == cfg.ResultChannel {
+			var resultMsg ResultMessage
+			if err := json.Unmarshal([]byte(msg.Payload), &resultMsg); err != nil {
+				log.Printf("Error unmarshaling result message: %v", err)
+				fileResult := models.FileResult{
+					FileName: "unknown", // We don't know the filename as unmarshal failed
+					ClientID: clientID,
+					Status:   "failed",
+					Error:    fmt.Sprintf("Failed to parse result message: %v. Raw message: %s", err, msg.Payload),
+				}
+				if err := m.db.Create(&fileResult).Error; err != nil {
+					log.Printf("Error storing failed result in database: %v", err)
+				}
+				continue
+			}
+
+			fileResult := models.FileResult{
+				FileName:   filepath.Base(resultMsg.FilePath),
+				ClientID:   clientID,
+				Status:     "completed",
+				ErrorCount: &resultMsg.ErrorCount,
+				WarnCount:  &resultMsg.WarnCount,
+			}
+
+			if resultMsg.ClientID != clientID {
+				fileResult.Status = "failed"
+				fileResult.Error = fmt.Sprintf("Result message client ID %s does not match current client ID %s", resultMsg.ClientID, clientID)
+			} else {
+				log.Printf("Result update for client %s: File: %s, Error Count: %d, Warn Count: %d",
+					clientID, resultMsg.FilePath, resultMsg.ErrorCount, resultMsg.WarnCount)
+			}
+
+			if err := m.db.Create(&fileResult).Error; err != nil {
+				log.Printf("Error storing failed result in database: %v", err)
+			}
 		}
 	}
 }
