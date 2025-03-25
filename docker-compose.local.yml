@@ -1,0 +1,42 @@
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: local_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --bind 0.0.0.0
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - local_network
+    environment:
+      - REDIS_HOST=0.0.0.0
+      - REDIS_PORT=6379
+
+  postgres:
+    image: postgres:alpine
+    container_name: local_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-file_processor}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - local_network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  local_network:
+    driver: bridge 
