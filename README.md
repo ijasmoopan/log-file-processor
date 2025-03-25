@@ -10,7 +10,7 @@ This project consists of multiple microservices working together to handle log f
 - **Frontend Service**: Next.js web application for file upload and result visualization
 - **Log Generator Service**: Utility service for generating test log files
 - **Log Processor Service**: Service for processing and analyzing log files
-- **Redis**: For real-time communication and caching
+- **Redis**: For real-time communication via Pub/Sub and caching
 - **PostgreSQL**: For storing processing results and metadata
 
 ## Prerequisites
@@ -19,17 +19,18 @@ This project consists of multiple microservices working together to handle log f
 - Go 1.21 or later
 - Node.js 18 or later
 - pnpm (for frontend development)
+- Redis Pub/Sub
 
 ## Project Structure
 
 ```
 .
-├── backend-service/      # Go backend API service
-├── frontend-service/     # Next.js frontend application
-├── log-generator-service/# Log file generator utility
-├── log-processor-service/# Log processing service
-├── uploads/             # Shared volume for log files
-└── docker-compose.yml   # Docker Compose configuration
+├── backend-service/            # Go backend API service
+├── frontend-service/           # Next.js frontend application
+├── log-generator-service/      # Log file generator utility
+├── log-processor-service/      # Log processing service
+├── uploads/                    # Shared volume for log files
+└── docker-compose.yml          # Docker Compose configuration
 ```
 
 ## Services
@@ -41,6 +42,7 @@ The backend service provides:
 - WebSocket server for real-time updates
 - File upload handling
 - Integration with Redis and PostgreSQL
+- Communication between services via Redis Pub/Sub
 - CORS configuration for frontend communication
 
 ### Frontend Service
@@ -82,6 +84,7 @@ cd intucloud-task
 
 2. Set up environment variables:
 ```bash
+cp .env.example .env
 cp backend-service/.env.local.example backend-service/.env.local
 cp frontend-service/.env.local.example frontend-service/.env.local
 cp log-processor-service/.env.local.example log-processor-service/.env.local
@@ -89,7 +92,7 @@ cp log-processor-service/.env.local.example log-processor-service/.env.local
 
 3. Start the services using Docker Compose:
 ```bash
-docker-compose -f docker-compose.local.yml up -d
+docker-compose up -d
 ```
 
 4. Access the application:

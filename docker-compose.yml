@@ -1,96 +1,42 @@
 services:
-  backend:
-    container_name: backend
-    build:
-      context: ./backend-service
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=password
-      - DB_NAME=file_management
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_KEY=${SUPABASE_KEY}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    depends_on:
-      - db
-      - redis
-    networks:
-      - app-network
-    volumes:
-      - uploads:/app/uploads
-
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend-service
-      dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=http://backend:8080
-      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
-      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_KEY}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NODE_ENV=production
-    depends_on:
-      - backend
-      - redis
-    networks:
-      - app-network
-
-  log-processor:
-    container_name: log-processor
-    build:
-      context: ./log-processor-service
-      dockerfile: Dockerfile
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    depends_on:
-      - redis
-    networks:
-      - app-network
-    volumes:
-      - uploads:/app/uploads
-
-  db:
-    image: postgres:alpine
-    container_name: db
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=file_management
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
   redis:
-    image: redis:alpine
-    container_name: redis
-    restart: unless-stopped
+    image: redis:7.2-alpine
+    container_name: local_redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --bind 0.0.0.0
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     networks:
-      - app-network
+      - local_network
+    environment:
+      - REDIS_HOST=0.0.0.0
+      - REDIS_PORT=6379
 
-networks:
-  app-network:
-    driver: bridge
+  postgres:
+    image: postgres:alpine
+    container_name: local_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-file_management}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - local_network
 
 volumes:
-  uploads:
+  redis_data:
   postgres_data:
-  redis_data: 
+
+networks:
+  local_network:
+    driver: bridge 
